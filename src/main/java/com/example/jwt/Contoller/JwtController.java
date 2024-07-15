@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class JwtController {
     JwtUtilities jwtUtilities;
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody JwtRequest jwtRequest) {
+    public ResponseEntity<?> loginUser(@RequestBody JwtRequest jwtRequest) throws Exception {
 
         JwtResponse jwtResponse = new JwtResponse();
 
@@ -41,21 +42,19 @@ public class JwtController {
         return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
     }
 
-    private void authenticate(String username, String password) {
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, password);
+    private void authenticate(String username, String password) throws Exception {
         try {
-            authenticationManager.authenticate(authentication);
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
-
-        } catch (BadCredentialsException e) {
-            throw new BadCredentialsException(" Invalid Username or Password  !!");
+        } catch (BadCredentialsException | DisabledException e) {
+            throw new Exception(" Invalid Username or Password  !!");
         }
 
     }
 
 
     @ExceptionHandler(BadCredentialsException.class)
-    public String exceptionHandler() throws Exception{
+    public String exceptionHandler() throws Exception {
         return "Credentials Invalid !!";
     }
 

@@ -38,7 +38,7 @@ public class SecurityConfig {
     UserDetailsService userDetailsService;
 
     @Autowired
-    AuthenticationEntryPoint point;
+    JwtAuthenticationEntryPoint point;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -48,8 +48,8 @@ public class SecurityConfig {
                                 .authenticated()
                                 .requestMatchers("/login")
                                 .permitAll().anyRequest().authenticated())
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(point))
-                .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS));
+                .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(point));
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
